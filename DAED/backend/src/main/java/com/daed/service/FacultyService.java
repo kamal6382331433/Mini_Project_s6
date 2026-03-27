@@ -1,18 +1,18 @@
 package com.daed.service;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
 import com.daed.model.Attendance;
 import com.daed.model.Marks;
-import com.daed.model.Student;
 import com.daed.model.Subject;
 import com.daed.repository.AttendanceRepository;
 import com.daed.repository.MarksRepository;
 import com.daed.repository.StudentRepository;
 import com.daed.repository.SubjectRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Optional;
 
 @Service
 public class FacultyService {
@@ -57,5 +57,15 @@ public class FacultyService {
         attendance.setTotalClasses(total);
         attendance.setAttendedClasses(attended);
         return attendanceRepository.save(attendance);
+    }
+
+    public void deleteMarks(Long studentId, Long subjectId) {
+        Optional<Marks> marks = marksRepository.findByStudentIdAndSubjectId(studentId, subjectId);
+        marks.ifPresent(marksRepository::delete);
+    }
+
+    public void deleteAttendance(Long studentId, Long subjectId) {
+        Optional<Attendance> attendance = attendanceRepository.findByStudentIdAndSubjectId(studentId, subjectId);
+        attendance.ifPresent(attendanceRepository::delete);
     }
 }

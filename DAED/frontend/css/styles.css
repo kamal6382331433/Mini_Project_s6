@@ -507,3 +507,91 @@ canvas {
     transform: translateX(5px);
     border-left-color: var(--secondary);
 }
+
+/* ===== STUDENT DASHBOARD — EXTRA POLISH ===== */
+
+/* Smooth page-in */
+@keyframes slideInPage {
+    from {
+        opacity: 0;
+        transform: translateY(12px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.s-card {
+    animation: slideInPage 0.5s ease both;
+}
+
+/* Glowing border on table rows when hovered */
+.table tbody tr:hover {
+    border-color: var(--primary) !important;
+    box-shadow: 0 0 0 1px rgba(99, 102, 241, 0.3), 0 8px 24px rgba(0, 0, 0, 0.4) !important;
+}
+
+/* Skeleton shimmer for loading states */
+@keyframes shimmer {
+    0% {
+        background-position: -600px 0;
+    }
+
+    100% {
+        background-position: 600px 0;
+    }
+}
+
+.shimmer {
+    background: linear-gradient(90deg,
+            #1e293b 25%, #334155 37%, #1e293b 63%);
+    background-size: 600px 100%;
+    animation: shimmer 1.4s infinite linear;
+    border-radius: 4px;
+    height: 16px;
+}
+
+/* Gauge glow */
+#gaugeFill {
+    filter: drop-shadow(0 0 6px rgba(99, 102, 241, 0.6));
+}
+
+/* Quote bar */
+.quote-ticker {
+    position: relative;
+    z-index: 1;
+}
+
+/* Profile hero nav visible above particles */
+.navbar-student {
+    position: relative;
+    z-index: 100;
+}
+
+/* Responsive tweaks */
+@media (max-width: 576px) {
+    .stat-strip {
+        grid-template-columns: 1fr 1fr;
+    }
+
+    .profile-hero {
+        padding: 20px;
+    }
+
+    .student-name {
+        font-size: 1.3rem;
+    }
+
+    .avatar-ring {
+        width: 64px;
+        height: 64px;
+        font-size: 1.5rem;
+    }
+
+    .btn-download {
+        font-size: 0.8rem;
+        padding: 8px 14px;
+    }
+}

@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.daed.model.Attendance;
 import com.daed.model.Marks;
 import com.daed.model.Student;
+import com.daed.payload.response.MessageResponse;
 import com.daed.repository.StudentRepository;
 import com.daed.service.StudentService;
 
@@ -50,5 +52,17 @@ public class StudentController {
     @GetMapping("/attendance/{studentId}")
     public List<Attendance> getAttendance(@PathVariable Long studentId) {
         return studentService.getStudentAttendance(studentId);
+    }
+
+    @DeleteMapping("/marks/{studentId}/{subjectId}")
+    public ResponseEntity<?> deleteMarks(@PathVariable Long studentId, @PathVariable Long subjectId) {
+        studentService.deleteMarks(studentId, subjectId);
+        return ResponseEntity.ok(new MessageResponse("Marks record deleted successfully!"));
+    }
+
+    @DeleteMapping("/attendance/{studentId}/{subjectId}")
+    public ResponseEntity<?> deleteAttendance(@PathVariable Long studentId, @PathVariable Long subjectId) {
+        studentService.deleteAttendance(studentId, subjectId);
+        return ResponseEntity.ok(new MessageResponse("Attendance record deleted successfully!"));
     }
 }
