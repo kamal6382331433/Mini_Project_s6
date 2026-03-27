@@ -22,10 +22,6 @@ target/
 Thumbs.db
 desktop.ini
 
-# ===== Sensitive Config =====
-DAED/backend/src/main/resources/application.properties
-DAED/backend/target/classes/application.properties
-
 # ===== Environment Files =====
 .env
 .env.local
