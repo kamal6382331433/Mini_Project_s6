@@ -1,0 +1,32 @@
+# ===== Java / Maven =====
+*.class
+*.jar
+*.war
+*.ear
+*.log
+target/
+
+# ===== IDE Files =====
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.settings/
+.classpath
+.project
+.factorypath
+
+# ===== OS Files =====
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ===== Sensitive Config =====
+DAED/backend/src/main/resources/application.properties
+DAED/backend/target/classes/application.properties
+
+# ===== Environment Files =====
+.env
+.env.local
+.env.production
