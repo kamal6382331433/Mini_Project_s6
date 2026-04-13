@@ -1,9 +1,9 @@
 # ===== Build Stage =====
 FROM maven:3.9-eclipse-temurin-17 AS build
 WORKDIR /app
-COPY DAED/backend/pom.xml .
+COPY backend/pom.xml .
 RUN mvn dependency:go-offline -B
-COPY DAED/backend/src ./src
+COPY backend/src ./src
 RUN mvn clean package -DskipTests -B
 
 # ===== Run Stage =====
