@@ -1,28 +1,37 @@
-# ===== Java / Maven =====
+# Compiled class files
 *.class
+
+# Log files
+*.log
+
+# Package files
 *.jar
 *.war
+*.nar
 *.ear
-*.log
-target/
+*.zip
+*.tar.gz
+*.rar
 
-# ===== IDE Files =====
+# Maven
+backend/target/
+.mvn/
+
+# IDE
 .idea/
 *.iml
-*.iws
-*.ipr
 .vscode/
-.settings/
-.classpath
-.project
-.factorypath
+*.swp
+*.swo
+backend/.settings/
+backend/.classpath
+backend/.project
 
-# ===== OS Files =====
+# OS
 .DS_Store
 Thumbs.db
-desktop.ini
+Desktop.ini
+*.lnk
 
-# ===== Environment Files =====
+# Environment
 .env
-.env.local
-.env.production

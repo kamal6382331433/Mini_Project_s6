@@ -1,255 +1,872 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DAED - Admin Dashboard</title>
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Bootstrap CSS -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <!-- Custom Styles -->
-    <link href="../css/styles.css?v=2" rel="stylesheet">
+    <link href="../css/styles.css?v=5" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        #adm-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.25;
+        }
+
+        /* Toast */
+        #toastContainer {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast-pill {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 14px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 280px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            animation: toastIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 0.9rem;
+        }
+
+        .toast-pill.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .toast-pill.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(60px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0)
+            }
+        }
+
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+                transform: translateX(0)
+            }
+
+            to {
+                opacity: 0;
+                transform: translateX(60px)
+            }
+        }
+
+        /* Navbar */
+        .navbar-admin {
+            background: rgba(15, 23, 42, 0.9) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+            position: relative;
+            z-index: 100;
+        }
+
+        /* Hero */
+        .admin-hero {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 60%, #0f172a 100%);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+            border-radius: 24px;
+            padding: 28px 32px;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .admin-hero::before {
+            content: '';
+            position: absolute;
+            top: -80px;
+            right: -80px;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(99, 102, 241, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .admin-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.3), 0 0 30px rgba(99, 102, 241, 0.3);
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+        }
+
+        .admin-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.7rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Stat Strip */
+        .adm-stat-strip {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        @media(max-width:768px) {
+            .adm-stat-strip {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .adm-stat-pill {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .adm-stat-pill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .adm-stat-pill.indigo::before {
+            background: linear-gradient(90deg, #6366f1, #818cf8);
+        }
+
+        .adm-stat-pill.emerald::before {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+
+        .adm-stat-pill.violet::before {
+            background: linear-gradient(90deg, #8b5cf6, #a78bfa);
+        }
+
+        .adm-stat-pill.amber::before {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        }
+
+        .adm-stat-pill:hover {
+            transform: translateY(-5px);
+            border-color: rgba(99, 102, 241, 0.4);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .adm-stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .adm-stat-icon.indigo {
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+        }
+
+        .adm-stat-icon.emerald {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+        }
+
+        .adm-stat-icon.violet {
+            background: rgba(139, 92, 246, 0.15);
+            color: #a78bfa;
+        }
+
+        .adm-stat-icon.amber {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+        }
+
+        .adm-stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .adm-stat-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Tabs */
+        .admin-tabs {
+            display: flex;
+            gap: 4px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #334155;
+            border-radius: 14px;
+            padding: 5px;
+            margin-bottom: 24px;
+        }
+
+        .admin-tab-btn {
+            flex: 1;
+            padding: 10px 16px;
+            border: none;
+            background: transparent;
+            color: #94a3b8;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.25s ease;
+        }
+
+        .admin-tab-btn.active {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+        }
+
+        .admin-tab-btn:not(.active):hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: #a5b4fc;
+        }
+
+        .tab-pane-custom {
+            display: none;
+            animation: fadeUp 0.4s ease both;
+        }
+
+        .tab-pane-custom.active {
+            display: block;
+        }
+
+        /* Section cards */
+        .admin-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 24px;
+            margin-bottom: 20px;
+            transition: border-color 0.3s;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .admin-card:hover {
+            border-color: rgba(99, 102, 241, 0.35);
+        }
+
+        .admin-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .icon-box {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+        }
+
+        .icon-box.indigo {
+            background: rgba(99, 102, 241, 0.15);
+            color: #818cf8;
+        }
+
+        .icon-box.emerald {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+        }
+
+        .icon-box.amber {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+        }
+
+        .icon-box.violet {
+            background: rgba(139, 92, 246, 0.15);
+            color: #a78bfa;
+        }
+
+        .card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.05rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .card-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* Form controls */
+        .form-control,
+        .form-select {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border: 1px solid #334155 !important;
+            color: #f1f5f9 !important;
+            border-radius: 10px;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #6366f1 !important;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.15) !important;
+        }
+
+        .form-label {
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        .btn-add {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border: none;
+            color: white;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-add:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.55);
+            color: white;
+        }
+
+        .btn-warn {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            border: none;
+            color: white;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.35);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-warn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.55);
+            color: white;
+        }
+
+        /* Person Cards in lists */
+        .person-card {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #334155;
+            border-radius: 14px;
+            padding: 14px 18px;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.25s ease;
+        }
+
+        .person-card:hover {
+            border-color: rgba(99, 102, 241, 0.4);
+            transform: translateX(4px);
+        }
+
+        .person-mini-avatar {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            font-size: 1rem;
+            font-family: 'Space Grotesk', sans-serif;
+            flex-shrink: 0;
+        }
+
+        .person-card-name {
+            font-weight: 600;
+            font-size: 0.95rem;
+            color: #f1f5f9;
+        }
+
+        .person-card-meta {
+            font-size: 0.8rem;
+            color: #94a3b8;
+            margin-top: 2px;
+        }
+
+        .person-card-badge {
+            margin-left: auto;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+
+        /* Subject row */
+        .subject-row {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.25s ease;
+        }
+
+        .subject-row:hover {
+            border-color: rgba(139, 92, 246, 0.4);
+            transform: translateX(4px);
+        }
+
+        .sub-code-box {
+            background: rgba(139, 92, 246, 0.15);
+            border: 1px solid rgba(139, 92, 246, 0.25);
+            color: #a78bfa;
+            border-radius: 8px;
+            padding: 4px 10px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            white-space: nowrap;
+        }
+
+        /* List wrappers */
+        .persons-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .subjects-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        /* Search Box */
+        .search-input {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border: 1px solid #334155 !important;
+            color: #f1f5f9 !important;
+            border-radius: 10px;
+            padding: 10px 16px 10px 40px;
+            width: 100%;
+            transition: all 0.3s;
+        }
+
+        .search-input:focus {
+            border-color: #6366f1 !important;
+            outline: none;
+        }
+
+        .search-wrap {
+            position: relative;
+            margin-bottom: 16px;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #94a3b8;
+        }
+
+        /* Badge Admin  */
+        .admin-badge-pill {
+            background: rgba(99, 102, 241, 0.15);
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            color: #a5b4fc;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 32px;
+            color: #94a3b8;
+        }
+
+        .empty-state i {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+            opacity: 0.4;
+            display: block;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px)
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0)
+            }
+        }
+
+        .content-wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+    </style>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <i class="bi bi-shield-fill-check me-2"></i>DAED Admin
+    <canvas id="adm-particles"></canvas>
+    <div id="toastContainer"></div>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-admin">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+                <div
+                    style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#6366f1,#8b5cf6);display:flex;align-items:center;justify-content:center;">
+                    <i class="bi bi-shield-fill-check" style="color:white;font-size:1rem;"></i>
+                </div>
+                <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.2rem;">DAED <span
+                        style="color:#818cf8;">Admin</span></span>
             </a>
-            <button class="btn btn-outline-light" onclick="logout()">
-                <i class="bi bi-box-arrow-right me-2"></i>Logout
-            </button>
+            <div class="d-flex align-items-center gap-3">
+                <span class="admin-badge-pill"><i class="bi bi-shield-check me-1"></i>Administrator</span>
+                <button class="btn btn-outline-light btn-sm d-flex align-items-center gap-2" onclick="logout()"
+                    style="border-radius:10px;padding:8px 16px;">
+                    <i class="bi bi-box-arrow-right"></i>Logout
+                </button>
+            </div>
         </div>
     </nav>
 
-    <div class="container mt-4 mb-5">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <div>
-                <h2 class="gradient-text mb-1">Admin Dashboard</h2>
-                <p class="text-muted">Manage students, faculty, and subjects</p>
-            </div>
-        </div>
+    <!-- ===== MAIN ===== -->
+    <div class="container-fluid px-4 mt-4 mb-5 content-wrap">
 
-        <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
-            <li class="nav-item" role="presentation">
-                <button class="nav-link active" id="student-tab" data-bs-toggle="tab" data-bs-target="#student"
-                    type="button" role="tab">
-                    <i class="bi bi-people-fill me-2"></i>Students
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="faculty-tab" data-bs-toggle="tab" data-bs-target="#faculty" type="button"
-                    role="tab">
-                    <i class="bi bi-person-badge-fill me-2"></i>Faculty
-                </button>
-            </li>
-            <li class="nav-item" role="presentation">
-                <button class="nav-link" id="subject-tab" data-bs-toggle="tab" data-bs-target="#subject" type="button"
-                    role="tab">
-                    <i class="bi bi-book-fill me-2"></i>Subjects
-                </button>
-            </li>
-        </ul>
-
-        <div class="tab-content" id="myTabContent">
-            <!-- Student Management -->
-            <div class="tab-pane fade show active" id="student" role="tabpanel">
-                <div class="card p-4 mb-4 hover-lift">
-                    <h4 class="mb-4">
-                        <i class="bi bi-person-plus-fill me-2 text-primary"></i>Add New Student
-                    </h4>
-                    <form id="addStudentForm">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Username</label>
-                                <input type="text" class="form-control" id="s_username" placeholder="Enter username"
-                                    required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Password</label>
-                                <input type="password" class="form-control" id="s_password" placeholder="Enter password"
-                                    required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Full Name</label>
-                                <input type="text" class="form-control" id="s_fullname" placeholder="Enter full name"
-                                    required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Email</label>
-                                <input type="email" class="form-control" id="s_email" placeholder="student@example.com"
-                                    required>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Roll Number</label>
-                                <input type="text" class="form-control" id="s_roll" placeholder="e.g., 2024001"
-                                    required>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Department</label>
-                                <input type="text" class="form-control" id="s_dept" placeholder="e.g., Computer Science"
-                                    required>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Semester</label>
-                                <input type="number" class="form-control" id="s_sem" placeholder="1-8" min="1" max="8"
-                                    required>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary mt-4">
-                            <i class="bi bi-plus-circle me-2"></i>Add Student
-                        </button>
-                    </form>
-                </div>
-                <div class="card p-4">
-                    <h4 class="mb-4">
-                        <i class="bi bi-list-ul me-2 text-primary"></i>Student List
-                    </h4>
-                    <div id="studentListContainer">
-                        <div class="text-center py-4">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
+        <!-- Hero -->
+        <div class="admin-hero">
+            <div class="d-flex align-items-center gap-4 flex-wrap">
+                <div class="admin-avatar">⚙️</div>
+                <div style="position:relative;z-index:1;">
+                    <div class="admin-name">Admin Control Panel</div>
+                    <div style="color:#a5b4fc;font-size:0.9rem;margin-top:4px;">
+                        <i class="bi bi-people-fill me-2"></i>Manage Students, Faculty & Subjects
                     </div>
                 </div>
-            </div>
-
-            <!-- Faculty Management -->
-            <div class="tab-pane fade" id="faculty" role="tabpanel">
-                <div class="card p-4 mb-4 hover-lift">
-                    <h4 class="mb-4">
-                        <i class="bi bi-person-plus-fill me-2 text-primary"></i>Add New Faculty
-                    </h4>
-                    <form id="addFacultyForm">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Username</label>
-                                <input type="text" class="form-control" id="f_username" placeholder="Enter username"
-                                    required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Password</label>
-                                <input type="password" class="form-control" id="f_password" placeholder="Enter password"
-                                    required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Full Name</label>
-                                <input type="text" class="form-control" id="f_fullname" placeholder="Enter full name"
-                                    required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Email</label>
-                                <input type="email" class="form-control" id="f_email" placeholder="faculty@example.com"
-                                    required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Department</label>
-                                <input type="text" class="form-control" id="f_dept" placeholder="e.g., Computer Science"
-                                    required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Designation</label>
-                                <input type="text" class="form-control" id="f_desig" placeholder="e.g., Professor"
-                                    required>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary mt-4">
-                            <i class="bi bi-plus-circle me-2"></i>Add Faculty
-                        </button>
-                    </form>
-                </div>
-                <div class="card p-4">
-                    <h4 class="mb-4">
-                        <i class="bi bi-list-ul me-2 text-primary"></i>Faculty List
-                    </h4>
-                    <div id="facultyListContainer">
-                        <div class="text-center py-4">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Subject Management -->
-            <div class="tab-pane fade" id="subject" role="tabpanel">
-                <div class="card p-4 mb-4 hover-lift">
-                    <h4 class="mb-4">
-                        <i class="bi bi-book-half me-2 text-primary"></i>Add New Subject
-                    </h4>
-                    <form id="addSubjectForm">
-                        <div class="row g-3">
-                            <div class="col-md-3">
-                                <label class="form-label">Subject Code</label>
-                                <input type="text" class="form-control" id="sub_code" placeholder="e.g., CS101"
-                                    required>
-                            </div>
-                            <div class="col-md-5">
-                                <label class="form-label">Subject Name</label>
-                                <input type="text" class="form-control" id="sub_name"
-                                    placeholder="e.g., Data Structures" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Department</label>
-                                <input type="text" class="form-control" id="sub_dept" placeholder="e.g., CSE" required>
-                            </div>
-                            <div class="col-md-4">
-                                <label class="form-label">Semester</label>
-                                <input type="number" class="form-control" id="sub_sem" placeholder="1-8" min="1" max="8"
-                                    required>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-primary mt-4">
-                            <i class="bi bi-plus-circle me-2"></i>Add Subject
-                        </button>
-                    </form>
-                </div>
-                <div class="card p-4 mb-4 hover-lift">
-                    <h4 class="mb-4">
-                        <i class="bi bi-link-45deg me-2 text-warning"></i>Assign Faculty to Subject
-                    </h4>
-                    <form id="assignFacultyForm">
-                        <div class="row g-3">
-                            <div class="col-md-6">
-                                <label class="form-label">Subject ID</label>
-                                <input type="number" class="form-control" id="assign_sub_id"
-                                    placeholder="Enter subject ID" required>
-                            </div>
-                            <div class="col-md-6">
-                                <label class="form-label">Faculty ID</label>
-                                <input type="number" class="form-control" id="assign_fac_id"
-                                    placeholder="Enter faculty ID" required>
-                            </div>
-                        </div>
-                        <button type="submit" class="btn btn-warning mt-4">
-                            <i class="bi bi-link me-2"></i>Assign Faculty
-                        </button>
-                    </form>
-                </div>
-                <div class="card p-4">
-                    <h4 class="mb-4">
-                        <i class="bi bi-list-ul me-2 text-primary"></i>Subject List
-                    </h4>
-                    <div id="subjectListContainer">
-                        <div class="text-center py-4">
-                            <div class="spinner-border text-primary" role="status">
-                                <span class="visually-hidden">Loading...</span>
-                            </div>
-                        </div>
+                <div class="ms-auto" style="position:relative;z-index:1;text-align:right;">
+                    <div
+                        style="font-size:0.78rem;color:#a5b4fc;font-weight:600;text-transform:uppercase;letter-spacing:1px;">
+                        System</div>
+                    <div id="admCurrentDate"
+                        style="font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:#f1f5f9;">
                     </div>
                 </div>
             </div>
         </div>
-    </div>
+
+        <!-- Stat Strip -->
+        <div class="adm-stat-strip">
+            <div class="adm-stat-pill indigo" style="animation-delay:0.1s">
+                <div class="adm-stat-icon indigo"><i class="bi bi-people-fill"></i></div>
+                <div class="adm-stat-value" id="admStatStudents">—</div>
+                <div class="adm-stat-label">Total Students</div>
+            </div>
+            <div class="adm-stat-pill emerald" style="animation-delay:0.2s">
+                <div class="adm-stat-icon emerald"><i class="bi bi-person-badge-fill"></i></div>
+                <div class="adm-stat-value" id="admStatFaculty">—</div>
+                <div class="adm-stat-label">Total Faculty</div>
+            </div>
+            <div class="adm-stat-pill violet" style="animation-delay:0.3s">
+                <div class="adm-stat-icon violet"><i class="bi bi-book-fill"></i></div>
+                <div class="adm-stat-value" id="admStatSubjects">—</div>
+                <div class="adm-stat-label">Total Subjects</div>
+            </div>
+            <div class="adm-stat-pill amber" style="animation-delay:0.4s">
+                <div class="adm-stat-icon amber"><i class="bi bi-bar-chart-fill"></i></div>
+                <div class="adm-stat-value" id="admStatDepts">—</div>
+                <div class="adm-stat-label">Departments</div>
+            </div>
+        </div>
+
+        <!-- ===== CUSTOM TABS ===== -->
+        <div class="admin-tabs">
+            <button class="admin-tab-btn active" onclick="switchTab('students', this)" id="tab-students">
+                <i class="bi bi-people-fill"></i> Students
+            </button>
+            <button class="admin-tab-btn" onclick="switchTab('faculty', this)" id="tab-faculty">
+                <i class="bi bi-person-badge-fill"></i> Faculty
+            </button>
+            <button class="admin-tab-btn" onclick="switchTab('subjects', this)" id="tab-subjects">
+                <i class="bi bi-book-fill"></i> Subjects
+            </button>
+        </div>
+
+        <!-- ===== TAB: STUDENTS ===== -->
+        <div class="tab-pane-custom active" id="pane-students">
+            <!-- Add Student -->
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <div class="icon-box indigo"><i class="bi bi-person-plus-fill"></i></div>
+                    <div>
+                        <div class="card-title">Add New Student</div>
+                        <div class="card-sub">Create a student account in the system</div>
+                    </div>
+                </div>
+                <form id="addStudentForm">
+                    <div class="row g-3">
+                        <div class="col-md-4"><label class="form-label">Username</label><input type="text"
+                                class="form-control" id="s_username" placeholder="username" required></div>
+                        <div class="col-md-4"><label class="form-label">Full Name</label><input type="text"
+                                class="form-control" id="s_fullname" placeholder="Full Name" required></div>
+                        <div class="col-md-4"><label class="form-label">Email</label><input type="email"
+                                class="form-control" id="s_email" placeholder="student@example.com" required></div>
+                        <div class="col-md-4"><label class="form-label">Password</label><input type="password"
+                                class="form-control" id="s_password" placeholder="Password" required></div>
+                        <div class="col-md-4"><label class="form-label">Roll Number</label><input type="text"
+                                class="form-control" id="s_roll" placeholder="e.g. 2024001" required></div>
+                        <div class="col-md-2"><label class="form-label">Department</label><input type="text"
+                                class="form-control" id="s_dept" placeholder="CSE" required></div>
+                        <div class="col-md-2"><label class="form-label">Semester</label><input type="number"
+                                class="form-control" id="s_sem" placeholder="1-8" min="1" max="8" required></div>
+                    </div>
+                    <button type="submit" class="btn-add mt-4"><i class="bi bi-plus-circle-fill"></i> Add
+                        Student</button>
+                </form>
+            </div>
+
+            <!-- Student List -->
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <div class="icon-box indigo"><i class="bi bi-list-ul"></i></div>
+                    <div>
+                        <div class="card-title">Student Directory</div>
+                        <div class="card-sub">All registered students</div>
+                    </div>
+                </div>
+                <div class="search-wrap">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Search students..."
+                        oninput="filterList('studentListContainer', this.value)">
+                </div>
+                <div id="studentListContainer" class="persons-grid">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: FACULTY ===== -->
+        <div class="tab-pane-custom" id="pane-faculty">
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <div class="icon-box emerald"><i class="bi bi-person-plus-fill"></i></div>
+                    <div>
+                        <div class="card-title">Add New Faculty</div>
+                        <div class="card-sub">Create a faculty account in the system</div>
+                    </div>
+                </div>
+                <form id="addFacultyForm">
+                    <div class="row g-3">
+                        <div class="col-md-4"><label class="form-label">Username</label><input type="text"
+                                class="form-control" id="f_username" placeholder="username" required></div>
+                        <div class="col-md-4"><label class="form-label">Full Name</label><input type="text"
+                                class="form-control" id="f_fullname" placeholder="Full Name" required></div>
+                        <div class="col-md-4"><label class="form-label">Email</label><input type="email"
+                                class="form-control" id="f_email" placeholder="faculty@example.com" required></div>
+                        <div class="col-md-4"><label class="form-label">Password</label><input type="password"
+                                class="form-control" id="f_password" placeholder="Password" required></div>
+                        <div class="col-md-4"><label class="form-label">Department</label><input type="text"
+                                class="form-control" id="f_dept" placeholder="CSE" required></div>
+                        <div class="col-md-4"><label class="form-label">Designation</label><input type="text"
+                                class="form-control" id="f_desig" placeholder="Professor" required></div>
+                    </div>
+                    <button type="submit" class="btn-add mt-4"
+                        style="background:linear-gradient(135deg,#10b981,#059669);box-shadow:0 4px 15px rgba(16,185,129,0.35);">
+                        <i class="bi bi-plus-circle-fill"></i> Add Faculty
+                    </button>
+                </form>
+            </div>
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <div class="icon-box emerald"><i class="bi bi-list-ul"></i></div>
+                    <div>
+                        <div class="card-title">Faculty Directory</div>
+                        <div class="card-sub">All registered faculty members</div>
+                    </div>
+                </div>
+                <div class="search-wrap">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Search faculty..."
+                        oninput="filterList('facultyListContainer', this.value)">
+                </div>
+                <div id="facultyListContainer" class="persons-grid">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== TAB: SUBJECTS ===== -->
+        <div class="tab-pane-custom" id="pane-subjects">
+            <div class="row g-4">
+                <div class="col-lg-6">
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <div class="icon-box violet"><i class="bi bi-book-half"></i></div>
+                            <div>
+                                <div class="card-title">Add New Subject</div>
+                                <div class="card-sub">Register a subject in the curriculum</div>
+                            </div>
+                        </div>
+                        <form id="addSubjectForm">
+                            <div class="row g-3">
+                                <div class="col-6"><label class="form-label">Subject Code</label><input type="text"
+                                        class="form-control" id="sub_code" placeholder="CS101" required></div>
+                                <div class="col-6"><label class="form-label">Semester</label><input type="number"
+                                        class="form-control" id="sub_sem" placeholder="1-8" min="1" max="8" required>
+                                </div>
+                                <div class="col-12"><label class="form-label">Subject Name</label><input type="text"
+                                        class="form-control" id="sub_name" placeholder="Data Structures" required></div>
+                                <div class="col-12"><label class="form-label">Department</label><input type="text"
+                                        class="form-control" id="sub_dept" placeholder="CSE" required></div>
+                            </div>
+                            <button type="submit" class="btn-add mt-4"
+                                style="background:linear-gradient(135deg,#8b5cf6,#7c3aed);box-shadow:0 4px 15px rgba(139,92,246,0.35);">
+                                <i class="bi bi-plus-circle-fill"></i> Add Subject
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                <div class="col-lg-6">
+                    <div class="admin-card">
+                        <div class="admin-card-header">
+                            <div class="icon-box amber"><i class="bi bi-link-45deg"></i></div>
+                            <div>
+                                <div class="card-title">Assign Faculty to Subject</div>
+                                <div class="card-sub">Link a faculty member to teach a subject</div>
+                            </div>
+                        </div>
+                        <form id="assignFacultyForm">
+                            <div class="mb-3"><label class="form-label">Subject ID</label><input type="number"
+                                    class="form-control" id="assign_sub_id" placeholder="Enter subject ID" required>
+                            </div>
+                            <div class="mb-3"><label class="form-label">Faculty ID</label><input type="number"
+                                    class="form-control" id="assign_fac_id" placeholder="Enter faculty ID" required>
+                            </div>
+                            <button type="submit" class="btn-warn mt-2">
+                                <i class="bi bi-link"></i> Assign Faculty
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            <div class="admin-card mt-0">
+                <div class="admin-card-header">
+                    <div class="icon-box violet"><i class="bi bi-list-ul"></i></div>
+                    <div>
+                        <div class="card-title">Subject Registry</div>
+                        <div class="card-sub">All subjects in the system</div>
+                    </div>
+                </div>
+                <div class="search-wrap">
+                    <i class="bi bi-search search-icon"></i>
+                    <input type="text" class="search-input" placeholder="Search subjects..."
+                        oninput="filterList('subjectListContainer', this.value)">
+                </div>
+                <div id="subjectListContainer" class="subjects-list">
+                    <div class="text-center py-4">
+                        <div class="spinner-border text-primary" role="status"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div><!-- /container -->
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/config.js"></script>

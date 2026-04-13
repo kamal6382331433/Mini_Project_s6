@@ -1,118 +1,795 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-bs-theme="dark">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>DAED - Faculty Dashboard</title>
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- Bootstrap CSS -->
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Space+Grotesk:wght@400;500;600;700&display=swap"
+        rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
-    <!-- Custom Styles -->
-    <link href="../css/styles.css?v=2" rel="stylesheet">
+    <link href="../css/styles.css?v=5" rel="stylesheet">
+    <style>
+        /* ===== FACULTY DASHBOARD STYLES ===== */
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        /* Toast Notification */
+        #toastContainer {
+            position: fixed;
+            top: 80px;
+            right: 24px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .toast-pill {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 14px;
+            padding: 14px 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: 280px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            animation: toastIn 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-size: 0.9rem;
+        }
+
+        .toast-pill.success {
+            border-left: 4px solid #10b981;
+        }
+
+        .toast-pill.error {
+            border-left: 4px solid #ef4444;
+        }
+
+        @keyframes toastIn {
+            from {
+                opacity: 0;
+                transform: translateX(60px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes toastOut {
+            from {
+                opacity: 1;
+                transform: translateX(0);
+            }
+
+            to {
+                opacity: 0;
+                transform: translateX(60px);
+            }
+        }
+
+        /* Faculty Navbar */
+        .navbar-faculty {
+            background: rgba(15, 23, 42, 0.9) !important;
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+            position: relative;
+            z-index: 100;
+        }
+
+        .faculty-badge-pill {
+            background: rgba(16, 185, 129, 0.15);
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            color: #34d399;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+
+        /* Hero Section */
+        .faculty-hero {
+            background: linear-gradient(135deg, #0f172a 0%, #134e4a 60%, #0f172a 100%);
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            border-radius: 24px;
+            padding: 28px 32px;
+            margin-bottom: 28px;
+            position: relative;
+            overflow: hidden;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .faculty-hero::before {
+            content: '';
+            position: absolute;
+            top: -80px;
+            right: -80px;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.15) 0%, transparent 70%);
+            pointer-events: none;
+        }
+
+        .faculty-avatar {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #10b981, #059669);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            color: white;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3), 0 0 30px rgba(16, 185, 129, 0.3);
+            flex-shrink: 0;
+            position: relative;
+            z-index: 1;
+            animation: glowPulse 3s ease-in-out infinite;
+        }
+
+        @keyframes glowPulse {
+
+            0%,
+            100% {
+                box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.3), 0 0 30px rgba(16, 185, 129, 0.3);
+            }
+
+            50% {
+                box-shadow: 0 0 0 8px rgba(16, 185, 129, 0.1), 0 0 50px rgba(16, 185, 129, 0.5);
+            }
+        }
+
+        .faculty-name {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.7rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff 0%, #6ee7b7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Stat Pills */
+        .f-stat-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 28px;
+        }
+
+        @media(max-width:768px) {
+            .f-stat-strip {
+                grid-template-columns: 1fr 1fr;
+            }
+        }
+
+        .f-stat-pill {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 20px;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .f-stat-pill::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            border-radius: 16px 16px 0 0;
+        }
+
+        .f-stat-pill.green::before {
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+
+        .f-stat-pill.blue::before {
+            background: linear-gradient(90deg, #3b82f6, #60a5fa);
+        }
+
+        .f-stat-pill.amber::before {
+            background: linear-gradient(90deg, #f59e0b, #fbbf24);
+        }
+
+        .f-stat-pill:hover {
+            transform: translateY(-5px);
+            border-color: rgba(16, 185, 129, 0.4);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+        }
+
+        .f-stat-icon {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            margin-bottom: 10px;
+        }
+
+        .f-stat-icon.green {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+        }
+
+        .f-stat-icon.blue {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+        }
+
+        .f-stat-icon.amber {
+            background: rgba(245, 158, 11, 0.15);
+            color: #fbbf24;
+        }
+
+        .f-stat-value {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .f-stat-label {
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-top: 4px;
+        }
+
+        /* Form Cards */
+        .form-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 20px;
+            padding: 28px;
+            transition: all 0.3s ease;
+            animation: fadeUp 0.5s ease both;
+        }
+
+        .form-card:hover {
+            border-color: rgba(99, 102, 241, 0.35);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .form-card-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .form-card-icon {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+        }
+
+        .form-card-icon.green {
+            background: rgba(16, 185, 129, 0.15);
+            color: #34d399;
+        }
+
+        .form-card-icon.blue {
+            background: rgba(59, 130, 246, 0.15);
+            color: #60a5fa;
+        }
+
+        .form-card-title {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 1.1rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .form-card-sub {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            margin: 0;
+        }
+
+        /* Input polish */
+        .form-control,
+        .form-select {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border: 1px solid #334155 !important;
+            color: #f1f5f9 !important;
+            border-radius: 10px;
+            padding: 12px 16px;
+            transition: all 0.3s ease;
+        }
+
+        .form-control:focus {
+            border-color: #10b981 !important;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.15) !important;
+        }
+
+        .form-label {
+            color: #94a3b8;
+            font-weight: 600;
+            font-size: 0.85rem;
+            margin-bottom: 6px;
+        }
+
+        /* Buttons */
+        .btn-faculty-marks {
+            background: linear-gradient(135deg, #10b981, #059669);
+            border: none;
+            color: white;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-faculty-marks:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.55);
+            color: white;
+        }
+
+        .btn-faculty-att {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            border: none;
+            color: white;
+            border-radius: 12px;
+            padding: 12px 24px;
+            font-weight: 600;
+            font-size: 0.95rem;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .btn-faculty-att:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(59, 130, 246, 0.55);
+            color: white;
+        }
+
+        /* Subjects display */
+        .subject-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.25);
+            color: #60a5fa;
+            font-size: 0.82rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        .subject-tag:hover {
+            background: rgba(59, 130, 246, 0.2);
+            transform: scale(1.04);
+        }
+
+        /* Recent activity log */
+        .activity-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+            padding: 12px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .activity-item:last-child {
+            border-bottom: none;
+        }
+
+        .activity-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-top: 5px;
+            flex-shrink: 0;
+        }
+
+        @keyframes fadeUp {
+            from {
+                opacity: 0;
+                transform: translateY(18px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* Particle BG */
+        #fac-particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+            opacity: 0.3;
+        }
+
+        /* Sections */
+        .content-wrap {
+            position: relative;
+            z-index: 1;
+            max-width: 1300px;
+            margin: 0 auto;
+        }
+
+        /* Live preview box */
+        .preview-box {
+            background: rgba(15, 23, 42, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 12px;
+            padding: 14px 18px;
+            margin-top: 16px;
+        }
+
+        .preview-row {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            padding: 5px 0;
+            color: #cbd5e1;
+        }
+
+        .preview-row .val {
+            font-weight: 700;
+            color: #f1f5f9;
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        /* Marks live calculation */
+        #liveTotalDisplay {
+            font-family: 'Space Grotesk', sans-serif;
+            font-size: 2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #10b981, #34d399);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+    </style>
 </head>
 
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="#">
-                <i class="bi bi-person-badge me-2"></i>DAED Faculty
+    <canvas id="fac-particles"></canvas>
+
+    <!-- Toast Container -->
+    <div id="toastContainer"></div>
+
+    <!-- ===== NAVBAR ===== -->
+    <nav class="navbar navbar-expand-lg navbar-dark navbar-faculty">
+        <div class="container-fluid px-4">
+            <a class="navbar-brand d-flex align-items-center gap-2" href="#">
+                <div
+                    style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#10b981,#059669);display:flex;align-items:center;justify-content:center;">
+                    <i class="bi bi-person-badge-fill" style="color:white;font-size:1rem;"></i>
+                </div>
+                <span style="font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1.2rem;">DAED <span
+                        style="color:#34d399;">Faculty</span></span>
             </a>
-            <button class="btn btn-outline-light" onclick="logout()">
-                <i class="bi bi-box-arrow-right me-2"></i>Logout
-            </button>
+            <div class="d-flex align-items-center gap-3">
+                <span class="faculty-badge-pill"><i class="bi bi-shield-check me-1"></i>Faculty</span>
+                <button class="btn btn-outline-light btn-sm d-flex align-items-center gap-2" onclick="logout()"
+                    style="border-radius:10px;padding:8px 16px;">
+                    <i class="bi bi-box-arrow-right"></i>Logout
+                </button>
+            </div>
         </div>
     </nav>
 
-    <div class="container mt-4 mb-5">
-        <div class="mb-4">
-            <h2 class="gradient-text mb-1">Faculty Dashboard</h2>
-            <p class="text-muted">Manage student marks and attendance</p>
-        </div>
+    <!-- ===== MAIN ===== -->
+    <div class="container-fluid px-4 mt-4 mb-5 content-wrap">
 
-        <div class="card p-4 mb-4">
-            <h4 class="mb-3">
-                <i class="bi bi-book me-2 text-primary"></i>Assigned Subjects
-            </h4>
-            <div id="assignedSubjects" class="text-muted">
-                <i class="bi bi-info-circle me-2"></i>Please enter Subject IDs below. (Faculty Mapping pending in UI)
+        <!-- Hero -->
+        <div class="faculty-hero">
+            <div class="d-flex align-items-center gap-4 flex-wrap">
+                <div class="faculty-avatar" id="facAvatar">F</div>
+                <div style="position:relative;z-index:1;">
+                    <div class="faculty-name">Faculty Dashboard</div>
+                    <div style="color:#6ee7b7;font-size:0.9rem;margin-top:4px;">
+                        <i class="bi bi-mortarboard me-2"></i>Manage Marks & Attendance for your students
+                    </div>
+                </div>
+                <div class="ms-auto" style="position:relative;z-index:1;text-align:right;">
+                    <div
+                        style="font-size:0.78rem;color:#6ee7b7;font-weight:600;text-transform:uppercase;letter-spacing:1px;">
+                        Today</div>
+                    <div id="currentDateTime"
+                        style="font-family:'Space Grotesk',sans-serif;font-size:1.1rem;font-weight:700;color:#f1f5f9;">
+                    </div>
+                </div>
             </div>
         </div>
 
+        <!-- Stats -->
+        <div class="f-stat-strip">
+            <div class="f-stat-pill green" style="animation-delay:0.1s">
+                <div class="f-stat-icon green"><i class="bi bi-pencil-fill"></i></div>
+                <div class="f-stat-value" id="fStatMarksEntered">0</div>
+                <div class="f-stat-label">Marks Submitted</div>
+            </div>
+            <div class="f-stat-pill blue" style="animation-delay:0.2s">
+                <div class="f-stat-icon blue"><i class="bi bi-calendar-check-fill"></i></div>
+                <div class="f-stat-value" id="fStatAttUpdated">0</div>
+                <div class="f-stat-label">Attendance Updated</div>
+            </div>
+            <div class="f-stat-pill amber" style="animation-delay:0.3s">
+                <div class="f-stat-icon amber"><i class="bi bi-book-fill"></i></div>
+                <div class="f-stat-value" id="fStatSubjectCount">—</div>
+                <div class="f-stat-label">Subjects Assigned</div>
+            </div>
+        </div>
+
+        <!-- Assigned Subjects -->
+        <div class="form-card mb-4">
+            <div class="form-card-header">
+                <div class="form-card-icon blue"><i class="bi bi-book-half"></i></div>
+                <div>
+                    <div class="form-card-title">Assigned Subjects</div>
+                    <div class="form-card-sub">Subjects you are currently teaching</div>
+                </div>
+            </div>
+            <div id="assignedSubjects" class="d-flex flex-wrap gap-2">
+                <span style="color:#94a3b8;font-size:0.88rem;"><i class="bi bi-info-circle me-1"></i>Loading
+                    subjects...</span>
+            </div>
+        </div>
+
+        <!-- Forms Row -->
         <div class="row g-4">
-            <div class="col-md-6">
-                <div class="card p-4 hover-lift">
-                    <h4 class="mb-4">
-                        <i class="bi bi-pencil-square me-2 text-success"></i>Enter Marks
-                    </h4>
-                    <form id="marksForm">
-                        <div class="mb-3">
-                            <label class="form-label">Student ID</label>
-                            <input type="number" class="form-control" id="m_stud_id" placeholder="Enter student ID"
-                                required>
+
+            <!-- Marks Form -->
+            <div class="col-lg-6">
+                <div class="form-card h-100" style="animation-delay:0.2s">
+                    <div class="form-card-header">
+                        <div class="form-card-icon green"><i class="bi bi-pencil-square"></i></div>
+                        <div>
+                            <div class="form-card-title">Enter Student Marks</div>
+                            <div class="form-card-sub">Internal + External marks per subject</div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Subject ID</label>
-                            <input type="number" class="form-control" id="m_sub_id" placeholder="Enter subject ID"
-                                required>
+                    </div>
+                    <form id="marksForm" novalidate>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label">Student ID</label>
+                                <input type="number" class="form-control" id="m_stud_id" placeholder="e.g. 1" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Subject ID</label>
+                                <input type="number" class="form-control" id="m_sub_id" placeholder="e.g. 1" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Internal Marks <span
+                                        style="color:#6ee7b7;font-size:0.75rem;">(0–50)</span></label>
+                                <input type="number" class="form-control" id="m_int" placeholder="0–50" min="0" max="50"
+                                    required oninput="calcLiveTotal()">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">External Marks <span
+                                        style="color:#6ee7b7;font-size:0.75rem;">(0–50)</span></label>
+                                <input type="number" class="form-control" id="m_ext" placeholder="0–50" min="0" max="50"
+                                    required oninput="calcLiveTotal()">
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Internal Marks</label>
-                            <input type="number" class="form-control" id="m_int" placeholder="0-50" min="0" max="50"
-                                required>
+
+                        <!-- Live Total Preview -->
+                        <div class="preview-box mt-3">
+                            <div
+                                style="font-size:0.78rem;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">
+                                Live Preview</div>
+                            <div class="d-flex align-items-center gap-4">
+                                <div>
+                                    <div id="liveTotalDisplay">—</div>
+                                    <div style="font-size:0.75rem;color:#94a3b8;">TOTAL / 100</div>
+                                </div>
+                                <div>
+                                    <div id="liveGradeDisplay" style="font-size:1.2rem;font-weight:700;"></div>
+                                    <div style="font-size:0.75rem;color:#94a3b8;">GRADE</div>
+                                </div>
+                                <div>
+                                    <div id="liveStatusDisplay" style="font-size:0.85rem;font-weight:700;"></div>
+                                    <div style="font-size:0.75rem;color:#94a3b8;">STATUS</div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">External Marks</label>
-                            <input type="number" class="form-control" id="m_ext" placeholder="0-50" min="0" max="50"
-                                required>
-                        </div>
-                        <button type="submit" class="btn btn-success w-100">
-                            <i class="bi bi-check-circle me-2"></i>Submit Marks
+
+                        <button type="submit" class="btn-faculty-marks mt-4">
+                            <i class="bi bi-check-circle-fill"></i> Submit Marks
                         </button>
                     </form>
                 </div>
             </div>
 
-            <div class="col-md-6">
-                <div class="card p-4 hover-lift">
-                    <h4 class="mb-4">
-                        <i class="bi bi-calendar-check me-2 text-info"></i>Update Attendance
-                    </h4>
-                    <form id="attendanceForm">
-                        <div class="mb-3">
-                            <label class="form-label">Student ID</label>
-                            <input type="number" class="form-control" id="a_stud_id" placeholder="Enter student ID"
-                                required>
+            <!-- Attendance Form -->
+            <div class="col-lg-6">
+                <div class="form-card h-100" style="animation-delay:0.3s">
+                    <div class="form-card-header">
+                        <div class="form-card-icon blue"><i class="bi bi-calendar-check"></i></div>
+                        <div>
+                            <div class="form-card-title">Update Attendance</div>
+                            <div class="form-card-sub">Record total & attended classes</div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Subject ID</label>
-                            <input type="number" class="form-control" id="a_sub_id" placeholder="Enter subject ID"
-                                required>
+                    </div>
+                    <form id="attendanceForm" novalidate>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label">Student ID</label>
+                                <input type="number" class="form-control" id="a_stud_id" placeholder="e.g. 1" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Subject ID</label>
+                                <input type="number" class="form-control" id="a_sub_id" placeholder="e.g. 1" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Total Classes</label>
+                                <input type="number" class="form-control" id="a_total" placeholder="e.g. 60" required
+                                    oninput="calcLiveAttendance()">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Classes Attended</label>
+                                <input type="number" class="form-control" id="a_attended" placeholder="e.g. 52" required
+                                    oninput="calcLiveAttendance()">
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Total Classes</label>
-                            <input type="number" class="form-control" id="a_total" placeholder="Total classes conducted"
-                                required>
+
+                        <!-- Live Attendance Preview -->
+                        <div class="preview-box mt-3">
+                            <div
+                                style="font-size:0.78rem;color:#94a3b8;font-weight:600;text-transform:uppercase;letter-spacing:1px;margin-bottom:8px;">
+                                Attendance Preview</div>
+                            <div class="d-flex align-items-center gap-4">
+                                <div>
+                                    <div id="liveAttPct"
+                                        style="font-family:'Space Grotesk',sans-serif;font-size:2rem;font-weight:800;color:#60a5fa;">
+                                        —%</div>
+                                    <div style="font-size:0.75rem;color:#94a3b8;">PERCENTAGE</div>
+                                </div>
+                                <div id="liveAttStatus" style="font-size:0.85rem;font-weight:700;"></div>
+                            </div>
+                            <!-- Mini bar -->
+                            <div class="subject-bar-track mt-2" style="height:8px;">
+                                <div id="liveAttBar"
+                                    style="height:100%;border-radius:10px;width:0%;transition:width 0.5s ease;background:linear-gradient(90deg,#3b82f6,#60a5fa);">
+                                </div>
+                            </div>
                         </div>
-                        <div class="mb-3">
-                            <label class="form-label">Attended Classes</label>
-                            <input type="number" class="form-control" id="a_attended" placeholder="Classes attended"
-                                required>
-                        </div>
-                        <button type="submit" class="btn btn-info w-100">
-                            <i class="bi bi-check-circle me-2"></i>Update Attendance
+
+                        <button type="submit" class="btn-faculty-att mt-4">
+                            <i class="bi bi-check-circle-fill"></i> Update Attendance
                         </button>
                     </form>
+                </div>
+            </div>
+
+        </div><!-- /row -->
+
+        <!-- Delete Forms Row -->
+        <div class="row g-4 mt-1">
+
+            <!-- Delete Marks Form -->
+            <div class="col-lg-6">
+                <div class="form-card h-100" style="animation-delay:0.4s">
+                    <div class="form-card-header">
+                        <div class="form-card-icon" style="background:rgba(239,68,68,0.15);color:#f87171;">
+                            <i class="bi bi-trash3"></i>
+                        </div>
+                        <div>
+                            <div class="form-card-title">Delete Student Marks</div>
+                            <div class="form-card-sub">Remove marks record for a student-subject pair</div>
+                        </div>
+                    </div>
+                    <form id="deleteMarksForm" novalidate>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label">Student ID</label>
+                                <input type="number" class="form-control" id="dm_stud_id" placeholder="e.g. 1" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Subject ID</label>
+                                <input type="number" class="form-control" id="dm_sub_id" placeholder="e.g. 1" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn mt-4"
+                            style="background:linear-gradient(135deg,#ef4444,#dc2626);border:none;color:white;border-radius:12px;padding:12px 24px;font-weight:600;font-size:0.95rem;width:100%;box-shadow:0 4px 15px rgba(239,68,68,0.35);display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.3s ease;">
+                            <i class="bi bi-trash3-fill"></i> Delete Marks
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Delete Attendance Form -->
+            <div class="col-lg-6">
+                <div class="form-card h-100" style="animation-delay:0.5s">
+                    <div class="form-card-header">
+                        <div class="form-card-icon" style="background:rgba(239,68,68,0.15);color:#f87171;">
+                            <i class="bi bi-trash3"></i>
+                        </div>
+                        <div>
+                            <div class="form-card-title">Delete Attendance Record</div>
+                            <div class="form-card-sub">Remove attendance record for a student-subject pair</div>
+                        </div>
+                    </div>
+                    <form id="deleteAttendanceForm" novalidate>
+                        <div class="row g-3">
+                            <div class="col-6">
+                                <label class="form-label">Student ID</label>
+                                <input type="number" class="form-control" id="da_stud_id" placeholder="e.g. 1" required>
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Subject ID</label>
+                                <input type="number" class="form-control" id="da_sub_id" placeholder="e.g. 1" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn mt-4"
+                            style="background:linear-gradient(135deg,#ef4444,#dc2626);border:none;color:white;border-radius:12px;padding:12px 24px;font-weight:600;font-size:0.95rem;width:100%;box-shadow:0 4px 15px rgba(239,68,68,0.35);display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.3s ease;">
+                            <i class="bi bi-trash3-fill"></i> Delete Attendance
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </div><!-- /delete row -->
+
+        <!-- Recent Activity Log -->
+        <div class="form-card mt-4" style="animation-delay:0.4s">
+            <div class="form-card-header">
+                <div class="form-card-icon amber"><i class="bi bi-clock-history"></i></div>
+                <div>
+                    <div class="form-card-title">Recent Activity</div>
+                    <div class="form-card-sub">Your last actions in this session</div>
+                </div>
+            </div>
+            <div id="activityLog">
+                <div style="color:#94a3b8;font-size:0.88rem;text-align:center;padding:16px;">
+                    <i class="bi bi-inbox me-2"></i>No activity yet. Submit marks or update attendance to see logs here.
                 </div>
             </div>
         </div>
-    </div>
 
+    </div><!-- /container -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/config.js"></script>
     <script src="../js/auth.js"></script>
     <script src="../js/faculty.js"></script>
