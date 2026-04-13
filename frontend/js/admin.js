@@ -258,14 +258,34 @@ document.addEventListener('DOMContentLoaded', () => {
             fullName: document.getElementById('s_fullname').value,
             role: 'student'
         };
+        const studentProfile = {
+            rollNumber: document.getElementById('s_roll').value,
+            department: document.getElementById('s_dept').value,
+            semester: parseInt(document.getElementById('s_sem').value)
+        };
         try {
+            // Step 1: Create user account
             const authRes = await fetch(`${AUTH_API}/signup`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(newUser)
             });
-            if (!authRes.ok) throw new Error('Failed to create user account');
-            showToast(`Student "${newUser.fullName}" account created!`, 'success');
+            if (!authRes.ok) {
+                const errData = await authRes.json().catch(() => ({}));
+                throw new Error(errData.message || 'Failed to create user account');
+            }
+            const authData = await authRes.json();
+            const userId = authData.userId;
+
+            // Step 2: Create student profile
+            const profileRes = await fetch(`${ADMIN_API}/student/${userId}`, {
+                method: 'POST',
+                headers: getAuthHeaders(),
+                body: JSON.stringify(studentProfile)
+            });
+            if (!profileRes.ok) throw new Error('User created but failed to create student profile');
+
+            showToast(`Student "${newUser.fullName}" created successfully!`, 'success');
             document.getElementById('addStudentForm').reset();
             setTimeout(() => loadStudents(), 800);
         } catch (err) {
@@ -336,14 +356,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 fullName: document.getElementById('f_fullname').value,
                 role: 'faculty'
             };
+            const facultyProfile = {
+                department: document.getElementById('f_dept').value,
+                designation: document.getElementById('f_desig').value
+            };
             try {
+                // Step 1: Create user account
                 const authRes = await fetch(`${AUTH_API}/signup`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(newUser)
                 });
-                if (!authRes.ok) throw new Error('Failed to create faculty account');
-                showToast(`Faculty "${newUser.fullName}" account created!`, 'success');
+                if (!authRes.ok) {
+                    const errData = await authRes.json().catch(() => ({}));
+                    throw new Error(errData.message || 'Failed to create faculty account');
+                }
+                const authData = await authRes.json();
+                const userId = authData.userId;
+
+                // Step 2: Create faculty profile
+                const profileRes = await fetch(`${ADMIN_API}/faculty/${userId}`, {
+                    method: 'POST',
+                    headers: getAuthHeaders(),
+                    body: JSON.stringify(facultyProfile)
+                });
+                if (!profileRes.ok) throw new Error('User created but failed to create faculty profile');
+
+                showToast(`Faculty "${newUser.fullName}" created successfully!`, 'success');
                 addFacultyForm.reset();
                 setTimeout(() => loadFaculty(), 800);
             } catch (err) {

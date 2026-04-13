@@ -1,5 +1,18 @@
 package com.daed.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
 import com.daed.model.User;
 import com.daed.payload.request.LoginRequest;
 import com.daed.payload.request.SignupRequest;
@@ -8,14 +21,6 @@ import com.daed.payload.response.MessageResponse;
 import com.daed.repository.UserRepository;
 import com.daed.security.JwtUtils;
 import com.daed.security.services.UserDetailsImpl;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
@@ -41,16 +46,16 @@ public class AuthController {
 
 		SecurityContextHolder.getContext().setAuthentication(authentication);
 		String jwt = jwtUtils.generateJwtToken(authentication);
-		
-		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();		
+
+		UserDetailsImpl userDetails = (UserDetailsImpl) authentication.getPrincipal();
 		String role = userDetails.getAuthorities().stream()
 				.findFirst().get().getAuthority();
 
-		return ResponseEntity.ok(new JwtResponse(jwt, 
-												 userDetails.getId(), 
-												 userDetails.getUsername(), 
-												 userDetails.getEmail(), 
-												 role));
+		return ResponseEntity.ok(new JwtResponse(jwt,
+				userDetails.getId(),
+				userDetails.getUsername(),
+				userDetails.getEmail(),
+				role));
 	}
 
 	@PostMapping("/signup")
@@ -73,15 +78,19 @@ public class AuthController {
 		user.setEmail(signUpRequest.getEmail());
 		user.setFullName(signUpRequest.getFullName());
 		user.setPassword(encoder.encode(signUpRequest.getPassword()));
-		
+
 		try {
-		    user.setRole(User.Role.valueOf(signUpRequest.getRole().toUpperCase()));
+			user.setRole(User.Role.valueOf(signUpRequest.getRole().toUpperCase()));
 		} catch (IllegalArgumentException e) {
-		    return ResponseEntity.badRequest().body(new MessageResponse("Error: Invalid Role!"));
+			return ResponseEntity.badRequest().body(new MessageResponse("Error: Invalid Role!"));
 		}
 
-		userRepository.save(user);
+		user = userRepository.save(user);
 
-		return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
+		// Return user ID so frontend can create student/faculty profile
+		java.util.Map<String, Object> response = new java.util.HashMap<>();
+		response.put("message", "User registered successfully!");
+		response.put("userId", user.getId());
+		return ResponseEntity.ok(response);
 	}
 }
